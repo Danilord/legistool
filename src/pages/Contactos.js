@@ -14,9 +14,12 @@ import {
   Paper,
   Switch,
   FormControlLabel,
-  Grid
+  Grid,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
-import { Delete, Edit, FileCopy } from '@mui/icons-material';
+import { Delete, Edit, FileCopy, ExpandMore } from '@mui/icons-material';
 import AutocompleteGrouped from '../components/AutocompleteGrouped';
 
 const Contactos = () => {
@@ -30,33 +33,22 @@ const Contactos = () => {
   const [sucursal, setSucursal] = useState(null); // Asegúrate de inicializar como null para el Autocomplete
   const [contactos, setContactos] = useState([]);
   const [errorPrimerNombre, setErrorPrimerNombre] = useState('');
-  const [errorPrimerApellido, setErrorPrimerApellido] = useState('');
   const [errorCorreo, setErrorCorreo] = useState('');
-  const [errorSucursal, setErrorSucursal] = useState('');
   const [editandoId, setEditandoId] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
 
   const organizaciones = [
     {
       nombre: 'Organización 1',
-      sucursales: [
-        'Sucursal 1-1',
-        'Sucursal 1-2',
-      ],
+      sucursales: ['Sucursal 1-1', 'Sucursal 1-2'],
     },
     {
       nombre: 'Organización 2',
-      sucursales: [
-        'Sucursal 2-1',
-        'Sucursal 2-2',
-      ],
+      sucursales: ['Sucursal 2-1', 'Sucursal 2-2'],
     },
     {
       nombre: 'Organización 3',
-      sucursales: [
-        'Sucursal 3-1',
-        'Sucursal 3-2',
-      ],
+      sucursales: ['Sucursal 3-1', 'Sucursal 3-2'],
     },
   ];
 
@@ -99,9 +91,6 @@ const Contactos = () => {
 
     if (primerNombre.trim() === '') {
       setErrorPrimerNombre('El primer nombre es requerido');
-      return;
-    } else if (nombreExistente) {
-      setErrorPrimerNombre('El nombre ya está en uso');
       return;
     }
 
@@ -174,94 +163,120 @@ const Contactos = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Contactos
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+
+      {/* Accordion para el formulario */}
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="h6">Formulario de Contacto</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
           <form onSubmit={handleSubmit}>
-            <TextField
-              label="Primer Nombre"
-              variant="outlined"
-              fullWidth
-              value={primerNombre}
-              onChange={(e) =>
-                handleInputChange(e, setPrimerNombre, setErrorPrimerNombre)
-              }
-              margin="normal"
-              error={!!errorPrimerNombre}
-              helperText={errorPrimerNombre}
-              required
-              name="Primer Nombre"
-            />
-            <TextField
-              label="Segundo Nombre"
-              variant="outlined"
-              fullWidth
-              value={segundoNombre}
-              onChange={(e) => handleInputChange(e, setSegundoNombre, () => { })}
-              margin="normal"
-            />
-            <TextField
-              label="Primer Apellido"
-              variant="outlined"
-              fullWidth
-              value={primerApellido}
-              onChange={(e) =>
-                handleInputChange(e, setPrimerApellido, setErrorPrimerApellido)
-              }
-              margin="normal"
-              name="Primer Apellido"
-            />
-            <TextField
-              label="Segundo Apellido"
-              variant="outlined"
-              fullWidth
-              value={segundoApellido}
-              onChange={(e) => handleInputChange(e, setSegundoApellido, () => { })}
-              margin="normal"
-            />
-            <TextField
-              label="Correo"
-              variant="outlined"
-              fullWidth
-              value={correo}
-              onChange={handleCorreoChange}
-              margin="normal"
-              error={!!errorCorreo}
-              helperText={errorCorreo}
-              name="Correo"
-            />
-            <TextField
-              label="Teléfono"
-              variant="outlined"
-              fullWidth
-              value={telefono}
-              onChange={(e) => handleInputChange(e, setTelefono, () => { })}
-              margin="normal"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={enabled}
-                  onChange={(e) => setEnabled(e.target.checked)}
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Primer Nombre"
+                  variant="outlined"
+                  fullWidth
+                  value={primerNombre}
+                  onChange={(e) =>
+                    handleInputChange(e, setPrimerNombre, setErrorPrimerNombre)
+                  }
+                  margin="normal"
+                  error={!!errorPrimerNombre}
+                  helperText={errorPrimerNombre}
+                  required
+                  name="Primer Nombre"
                 />
-              }
-              label="Activo"
-              style={{ marginTop: '1em' }}
-            />
-            <AutocompleteGrouped
-              grupos={organizaciones}
-              getGrupoLabel={(organizacion) => organizacion.nombre}
-              getElementos={(organizacion) => organizacion.sucursales}
-              getElementoLabel={(sucursal) => sucursal}
-              value={sucursal}
-              onChange={(event, newValue) => setSucursal(newValue)}
-              label="Sucursal"
-            />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              {editandoId !== null ? 'Guardar cambios' : 'Agregar'}
-            </Button>
+                <TextField
+                  label="Segundo Nombre"
+                  variant="outlined"
+                  fullWidth
+                  value={segundoNombre}
+                  onChange={(e) =>
+                    handleInputChange(e, setSegundoNombre, () => {})
+                  }
+                  margin="normal"
+                />
+                <TextField
+                  label="Teléfono"
+                  variant="outlined"
+                  fullWidth
+                  value={telefono}
+                  onChange={(e) => handleInputChange(e, setTelefono, () => {})}
+                  margin="normal"
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={enabled}
+                      onChange={(e) => setEnabled(e.target.checked)}
+                    />
+                  }
+                  label="Activo"
+                  style={{ marginTop: '1em' }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Primer Apellido"
+                  variant="outlined"
+                  fullWidth
+                  value={primerApellido}
+                  onChange={(e) =>
+                    handleInputChange(e, setPrimerApellido)
+                  }
+                  margin="normal"
+                  name="Primer Apellido"
+                />
+                <TextField
+                  label="Segundo Apellido"
+                  variant="outlined"
+                  fullWidth
+                  value={segundoApellido}
+                  onChange={(e) =>
+                    handleInputChange(e, setSegundoApellido, () => {})
+                  }
+                  margin="normal"
+                />
+                <TextField
+                  label="Correo"
+                  variant="outlined"
+                  fullWidth
+                  value={correo}
+                  onChange={handleCorreoChange}
+                  margin="normal"
+                  error={!!errorCorreo}
+                  helperText={errorCorreo}
+                  name="Correo"
+                />
+                <AutocompleteGrouped
+                  grupos={organizaciones}
+                  getGrupoLabel={(organizacion) => organizacion.nombre}
+                  getElementos={(organizacion) => organizacion.sucursales}
+                  getElementoLabel={(sucursal) => sucursal}
+                  value={sucursal}
+                  onChange={(event, newValue) => setSucursal(newValue)}
+                  label="Sucursal"
+                />
+              </Grid>
+            </Grid>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                style={{ marginTop: '1em' }}
+              >
+                {editandoId !== null ? 'Guardar cambios' : 'Agregar'}
+              </Button>
+            </div>
           </form>
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* Tabla de contactos */}
+      <Grid container spacing={2} style={{ marginTop: '1em' }}>
+        <Grid item xs={12}>
           <TextField
             label="Buscar"
             variant="outlined"
@@ -288,10 +303,18 @@ const Contactos = () => {
               <TableBody>
                 {contactos
                   .filter((contacto) =>
-                    contacto.primerNombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    contacto.segundoNombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    contacto.primerApellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    contacto.segundoApellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    contacto.primerNombre
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    contacto.segundoNombre
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    contacto.primerApellido
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    contacto.segundoApellido
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
                     contacto.correo.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     contacto.telefono.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     contacto.sucursal.toLowerCase().includes(searchQuery.toLowerCase())
