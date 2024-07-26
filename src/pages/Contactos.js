@@ -34,6 +34,8 @@ const Contactos = () => {
   const [contactos, setContactos] = useState([]);
   const [errorPrimerNombre, setErrorPrimerNombre] = useState('');
   const [errorCorreo, setErrorCorreo] = useState('');
+  const [errorTelefono, setErrorTelefono] = useState('');
+  const [errorSucursal, setErrorSucursal] = useState('');
   const [editandoId, setEditandoId] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
 
@@ -53,12 +55,14 @@ const Contactos = () => {
   ];
 
   const handleInputChange = (event, setter, setError) => {
-    const value = event.target.value;
+    const { value, name } = event.target;
     setter(value);
-    if (value.trim() === '') {
-      setError(`El ${event.target.name} es requerido`);
-    } else {
-      setError('');
+    if (setError) {
+      if (value.trim() === '') {
+        setError(`El campo ${name} es requerido`);
+      } else {
+        setError('');
+      }
     }
   };
 
@@ -81,20 +85,36 @@ const Contactos = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // // Verificar si el primer nombre ya existe en los contactos existentes
-    // const nombreExistente = contactos.some(
-    //   (contacto) =>
-    //     contacto.primerNombre === primerNombre &&
-    //     contacto.primerApellido === primerApellido &&
-    //     contacto.id !== editandoId
-    // );
+    // Validar campos requeridos
+    let valid = true;
 
     if (primerNombre.trim() === '') {
       setErrorPrimerNombre('El primer nombre es requerido');
-      return;
+      valid = false;
     }
 
-    setErrorPrimerNombre('');
+    if (correo.trim() === '' || !validateEmail(correo)) {
+      setErrorCorreo('El correo es requerido y debe tener un formato válido');
+      valid = false;
+    }
+
+    if (telefono.trim() === '') {
+      setErrorTelefono('El teléfono es requerido');
+      valid = false;
+    } else {
+      setErrorTelefono('');
+    }
+
+    if (!sucursal) {
+      setErrorSucursal('Debe seleccionar una sucursal');
+      valid = false;
+    } else {
+      setErrorSucursal('');
+    }
+
+    if (!valid) {
+      return;
+    }
 
     const nuevoContacto = {
       id: editandoId !== null ? editandoId : contactos.length + 1,
@@ -118,6 +138,7 @@ const Contactos = () => {
       setContactos([...contactos, nuevoContacto]);
     }
 
+    // Limpiar los campos y errores
     setPrimerNombre('');
     setSegundoNombre('');
     setPrimerApellido('');
@@ -126,6 +147,10 @@ const Contactos = () => {
     setTelefono('');
     setEnabled(false);
     setSucursal(null);
+    setErrorPrimerNombre('');
+    setErrorCorreo('');
+    setErrorTelefono('');
+    setErrorSucursal('');
   };
 
   const handleDelete = (id) => {
@@ -181,7 +206,7 @@ const Contactos = () => {
                   onChange={(e) =>
                     handleInputChange(e, setPrimerNombre, setErrorPrimerNombre)
                   }
-                  margin="normal"
+                  margin="dense"
                   error={!!errorPrimerNombre}
                   helperText={errorPrimerNombre}
                   required
@@ -195,15 +220,21 @@ const Contactos = () => {
                   onChange={(e) =>
                     handleInputChange(e, setSegundoNombre, () => {})
                   }
-                  margin="normal"
+                  margin="dense"
                 />
                 <TextField
                   label="Teléfono"
                   variant="outlined"
                   fullWidth
                   value={telefono}
-                  onChange={(e) => handleInputChange(e, setTelefono, () => {})}
-                  margin="normal"
+                  onChange={(e) =>
+                    handleInputChange(e, setTelefono, setErrorTelefono)
+                  }
+                  margin="dense"
+                  error={!!errorTelefono}
+                  helperText={errorTelefono}
+                  required
+                  name="Teléfono"
                 />
                 <FormControlLabel
                   control={
@@ -213,7 +244,8 @@ const Contactos = () => {
                     />
                   }
                   label="Activo"
-                  style={{ marginTop: '1em' }}
+                  style={{ marginTop: '1em', marginLeft: '1em' }}
+                  margin="dense"
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -223,9 +255,9 @@ const Contactos = () => {
                   fullWidth
                   value={primerApellido}
                   onChange={(e) =>
-                    handleInputChange(e, setPrimerApellido)
+                    handleInputChange(e, setPrimerApellido, () => {})
                   }
-                  margin="normal"
+                  margin="dense"
                   name="Primer Apellido"
                 />
                 <TextField
@@ -236,7 +268,7 @@ const Contactos = () => {
                   onChange={(e) =>
                     handleInputChange(e, setSegundoApellido, () => {})
                   }
-                  margin="normal"
+                  margin="dense"
                 />
                 <TextField
                   label="Correo"
@@ -244,9 +276,10 @@ const Contactos = () => {
                   fullWidth
                   value={correo}
                   onChange={handleCorreoChange}
-                  margin="normal"
+                  margin="dense"
                   error={!!errorCorreo}
                   helperText={errorCorreo}
+                  required
                   name="Correo"
                 />
                 <AutocompleteGrouped
@@ -257,6 +290,9 @@ const Contactos = () => {
                   value={sucursal}
                   onChange={(event, newValue) => setSucursal(newValue)}
                   label="Sucursal"
+                  error={!!errorSucursal}
+                  helperText={errorSucursal}
+                  margin="dense"
                 />
               </Grid>
             </Grid>
@@ -283,7 +319,7 @@ const Contactos = () => {
             fullWidth
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            margin="normal"
+            margin="dense"
           />
           <TableContainer component={Paper}>
             <Table>
@@ -315,9 +351,15 @@ const Contactos = () => {
                     contacto.segundoApellido
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase()) ||
-                    contacto.correo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    contacto.telefono.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    contacto.sucursal.toLowerCase().includes(searchQuery.toLowerCase())
+                    contacto.correo
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    contacto.telefono
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    contacto.sucursal
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                   )
                   .map((contacto) => (
                     <TableRow key={contacto.id}>
