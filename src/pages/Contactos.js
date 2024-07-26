@@ -81,13 +81,13 @@ const Contactos = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Verificar si el primer nombre ya existe en los contactos existentes
-    const nombreExistente = contactos.some(
-      (contacto) =>
-        contacto.primerNombre === primerNombre &&
-        contacto.primerApellido === primerApellido &&
-        contacto.id !== editandoId
-    );
+    // // Verificar si el primer nombre ya existe en los contactos existentes
+    // const nombreExistente = contactos.some(
+    //   (contacto) =>
+    //     contacto.primerNombre === primerNombre &&
+    //     contacto.primerApellido === primerApellido &&
+    //     contacto.id !== editandoId
+    // );
 
     if (primerNombre.trim() === '') {
       setErrorPrimerNombre('El primer nombre es requerido');
