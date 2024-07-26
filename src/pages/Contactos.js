@@ -1,4 +1,3 @@
-// src/pages/Contactos.js
 import React, { useState } from 'react';
 import {
     Container,
@@ -15,14 +14,12 @@ import {
     Paper,
     Switch,
     FormControlLabel,
-    Grid,
-    MenuItem
+    Grid
 } from '@mui/material';
-import { Crib, Delete, Edit, FileCopy } from '@mui/icons-material';
-import { useAuth } from '../App';
+import { Delete, Edit, FileCopy } from '@mui/icons-material';
+import AutocompleteGrouped from '../components/AutocompleteGrouped'; // Asegúrate de que la ruta es correcta
 
 const Contactos = () => {
-    const { user } = useAuth();
     const [primerNombre, setPrimerNombre] = useState('');
     const [segundoNombre, setSegundoNombre] = useState('');
     const [primerApellido, setPrimerApellido] = useState('');
@@ -30,20 +27,12 @@ const Contactos = () => {
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
     const [enabled, setEnabled] = useState(false); // Estado para el switch de activo/inactivo
-    const [sucursal, setSucursal] = useState('');
+    const [sucursal, setSucursal] = useState(null); // Asegúrate de inicializar como null para el Autocomplete
     const [contactos, setContactos] = useState([]);
     const [errorPrimerNombre, setErrorPrimerNombre] = useState('');
-    const [errorPrimerApellido, setErrorPrimerApellido] = useState('');
     const [errorCorreo, setErrorCorreo] = useState('');
-    const [errorSucursal, setErrorSucursal] = useState('');
     const [editandoId, setEditandoId] = useState(null);
-
-    // Datos de ejemplo de sucursales
-    const sucursales = [
-        { id: 1, nombre: 'Sucursal 1' },
-        { id: 2, nombre: 'Sucursal 2' },
-        // Agrega más sucursales según sea necesario
-    ];
+    const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
 
     const handleInputChange = (event, setter, setError) => {
         const value = event.target.value;
@@ -101,7 +90,7 @@ const Contactos = () => {
             correo,
             telefono,
             enabled,
-            sucursal,
+            sucursal: sucursal?.label || '', // Utiliza la etiqueta seleccionada
         };
 
         if (editandoId !== null) {
@@ -121,7 +110,7 @@ const Contactos = () => {
         setCorreo('');
         setTelefono('');
         setEnabled(false);
-        setSucursal('');
+        setSucursal(null);
     };
 
     const handleDelete = (id) => {
@@ -136,7 +125,7 @@ const Contactos = () => {
         setCorreo(contacto.correo);
         setTelefono(contacto.telefono);
         setEnabled(contacto.enabled);
-        setSucursal(contacto.sucursal);
+        setSucursal({ label: contacto.sucursal }); // Asigna el objeto completo
     };
 
     const handleEdit = (id) => {
@@ -149,7 +138,7 @@ const Contactos = () => {
             setCorreo(contactoEdit.correo);
             setTelefono(contactoEdit.telefono);
             setEnabled(contactoEdit.enabled);
-            setSucursal(contactoEdit.sucursal);
+            setSucursal({ label: contactoEdit.sucursal }); // Asigna el objeto completo
             setEditandoId(id);
         }
     };
@@ -162,7 +151,7 @@ const Contactos = () => {
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                     <form onSubmit={handleSubmit}>
-                    <TextField
+                        <TextField
                             label="Primer Nombre"
                             variant="outlined"
                             fullWidth
@@ -190,7 +179,7 @@ const Contactos = () => {
                             fullWidth
                             value={primerApellido}
                             onChange={(e) =>
-                                handleInputChange(e, setPrimerApellido, setErrorPrimerApellido)
+                                handleInputChange(e, setPrimerApellido)
                             }
                             margin="normal"
                             name="Primer Apellido"
@@ -233,31 +222,25 @@ const Contactos = () => {
                             labelPlacement="start"
                             style={{ marginTop: '1em' }}
                         />
-                        <TextField
-                            select
-                            label="Sucursal"
-                            variant="outlined"
-                            fullWidth
+                        <AutocompleteGrouped
                             value={sucursal}
-                            onChange={(e) => handleInputChange(e, setSucursal, setErrorSucursal)}
-                            margin="normal"
-                            error={!!errorSucursal}
-                            helperText={errorSucursal}
-                            required
-                            name="Sucursal"
-                        >
-                            {sucursales.map((suc) => (
-                                <MenuItem key={suc.id} value={suc.nombre}>
-                                    {suc.nombre}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                            onChange={(event, newValue) => setSucursal(newValue)}
+                        />
                         <Button type="submit" variant="contained" color="primary">
                             {editandoId !== null ? 'Guardar Edición' : 'Guardar'}
                         </Button>
                     </form>
                 </Grid>
                 <Grid item xs={12}>
+                    <TextField
+                        label="Buscar"
+                        variant="outlined"
+                        fullWidth
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        margin="normal"
+                        style={{ marginBottom: '1em' }}
+                    />
                     <TableContainer component={Paper} style={{ marginTop: '2em', overflowX: 'auto' }}>
                         <Table>
                             <TableHead>
@@ -274,31 +257,41 @@ const Contactos = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {contactos.map((contacto) => (
-                                    <TableRow key={contacto.id}>
-                                        <TableCell component="th" scope="row">
-                                            {contacto.primerNombre}
-                                        </TableCell>
-                                        <TableCell>{contacto.segundoNombre}</TableCell>
-                                        <TableCell>{contacto.primerApellido}</TableCell>
-                                        <TableCell>{contacto.segundoApellido}</TableCell>
-                                        <TableCell>{contacto.correo}</TableCell>
-                                        <TableCell>{contacto.telefono}</TableCell>
-                                        <TableCell>{contacto.enabled ? 'Sí' : 'No'}</TableCell>
-                                        <TableCell>{contacto.sucursal}</TableCell>
-                                        <TableCell align="right">
-                                            <IconButton onClick={() => handleEdit(contacto.id)}>
-                                                <Edit />
-                                            </IconButton>
-                                            <IconButton onClick={() => handleCopy(contacto)}>
-                                                <FileCopy />
-                                            </IconButton>
-                                            <IconButton onClick={() => handleDelete(contacto.id)}>
-                                                <Delete />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                {contactos
+                                    .filter(contacto =>
+                                        contacto.primerNombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.segundoNombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.primerApellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.segundoApellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.correo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.telefono.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        contacto.sucursal.toLowerCase().includes(searchQuery.toLowerCase())
+                                    )
+                                    .map((contacto) => (
+                                        <TableRow key={contacto.id}>
+                                            <TableCell component="th" scope="row">
+                                                {contacto.primerNombre}
+                                            </TableCell>
+                                            <TableCell>{contacto.segundoNombre}</TableCell>
+                                            <TableCell>{contacto.primerApellido}</TableCell>
+                                            <TableCell>{contacto.segundoApellido}</TableCell>
+                                            <TableCell>{contacto.correo}</TableCell>
+                                            <TableCell>{contacto.telefono}</TableCell>
+                                            <TableCell>{contacto.enabled ? 'Sí' : 'No'}</TableCell>
+                                            <TableCell>{contacto.sucursal}</TableCell>
+                                            <TableCell align="right">
+                                                <IconButton onClick={() => handleEdit(contacto.id)}>
+                                                    <Edit />
+                                                </IconButton>
+                                                <IconButton onClick={() => handleCopy(contacto)}>
+                                                    <FileCopy />
+                                                </IconButton>
+                                                <IconButton onClick={() => handleDelete(contacto.id)}>
+                                                    <Delete />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
