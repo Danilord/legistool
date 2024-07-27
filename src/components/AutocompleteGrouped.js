@@ -1,24 +1,53 @@
-import * as React from 'react';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
+import React from 'react';
+import { Autocomplete, TextField } from '@mui/material';
 
-export default function AutocompleteGrouped({ grupos, getGrupoLabel, getElementos, getElementoLabel, value, onChange, label }) {
-  const opciones = grupos.flatMap(grupo => 
-    getElementos(grupo).map(elemento => ({
-      grupo: getGrupoLabel(grupo),
-      elemento: getElementoLabel(elemento),
+const AutocompleteGrouped = ({
+  grupos,
+  getGrupoLabel,
+  getElementos,
+  getElementoLabel,
+  value,
+  onChange,
+  label,
+  error,
+  helperText,
+  margin,
+}) => {
+  // Preparar las opciones combinadas para el Autocomplete
+  const opciones = grupos.flatMap((grupo) =>
+    getElementos(grupo).map((elemento) => ({
+      grupo,
+      elemento,
     }))
   );
 
   return (
     <Autocomplete
-      id="grouped-demo"
       options={opciones}
-      groupBy={(option) => option.grupo}
-      getOptionLabel={(option) => option.elemento}
-      renderInput={(params) => <TextField {...params} label={label} variant="outlined" />}
+      groupBy={(option) => getGrupoLabel(option.grupo)}
+      getOptionLabel={(option) =>
+        `${getElementoLabel(option.elemento)} - ${getGrupoLabel(option.grupo)}`
+      }
       value={value}
       onChange={onChange}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          error={error}
+          helperText={helperText}
+          margin={margin}
+          variant="outlined"
+        />
+      )}
+      renderOption={(props, option) => (
+        <li {...props}>
+          {/* {`${getElementoLabel(option.elemento)} (${getGrupoLabel(option.grupo)})`} */}
+          {`${getElementoLabel(option.elemento)}`}
+        </li>
+      )}
     />
   );
-}
+};
+
+export default AutocompleteGrouped;
