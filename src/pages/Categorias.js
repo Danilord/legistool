@@ -98,7 +98,7 @@ const Categorias = () => {
                 Categorías
             </Typography>
             <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={6} md={6}>
                     <form onSubmit={handleSubmit}>
                         <TextField
                             label="Nombre"
@@ -117,7 +117,9 @@ const Categorias = () => {
                         </Button>
                     </form>
                 </Grid>
-                <Grid item xs={12}>
+            </Grid>
+            <Grid container spacing={3}>
+                <Grid item xs={6}>
                     <TableContainer component={Paper} style={{ marginTop: '2em', overflowX: 'auto' }}>
                         <Table>
                             <TableHead>
