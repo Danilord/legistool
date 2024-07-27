@@ -42,17 +42,18 @@ const Contactos = () => {
   const organizaciones = [
     {
       nombre: 'Organización 1',
-      sucursales: ['Sucursal 1-1', 'Sucursal 1-2'],
+      elementos: ['Sucursal 1-1', 'Sucursal 1-2'],
     },
     {
       nombre: 'Organización 2',
-      sucursales: ['Sucursal 2-1', 'Sucursal 2-2'],
+      elementos: ['Sucursal 2-1', 'Sucursal 2-2'],
     },
     {
       nombre: 'Organización 3',
-      sucursales: ['Sucursal 3-1', 'Sucursal 3-2'],
+      elementos: ['Sucursal 3-1', 'Sucursal 3-2'],
     },
   ];
+  
 
   const handleInputChange = (event, setter, setError) => {
     const { value, name } = event.target;
@@ -157,6 +158,24 @@ const Contactos = () => {
     setContactos(contactos.filter((contacto) => contacto.id !== id));
   };
 
+//   const handleCopy = (contacto) => {
+//     setPrimerNombre(contacto.primerNombre);
+//     setSegundoNombre(contacto.segundoNombre);
+//     setPrimerApellido(contacto.primerApellido);
+//     setSegundoApellido(contacto.segundoApellido);
+//     setCorreo(contacto.correo);
+//     setTelefono(contacto.telefono);
+//     setEnabled(contacto.enabled);
+    
+//     // Encontrar la organización y sucursal correctas
+//     const organizacionEncontrada = organizaciones.find(organizacion =>
+//       organizacion.sucursales.includes(contacto.sucursal)
+//     );
+  
+//     setSucursal(organizacionEncontrada
+//       ? { grupo: organizacionEncontrada, elemento: contacto.sucursal }
+//       : null);
+//   };
   const handleCopy = (contacto) => {
     setPrimerNombre(contacto.primerNombre);
     setSegundoNombre(contacto.segundoNombre);
@@ -165,23 +184,62 @@ const Contactos = () => {
     setCorreo(contacto.correo);
     setTelefono(contacto.telefono);
     setEnabled(contacto.enabled);
-    setSucursal({ elemento: contacto.sucursal }); // Asigna el objeto completo
+    
+    // Encontrar la organización y sucursal correctas
+    const organizacionEncontrada = organizaciones.find(organizacion =>
+      organizacion.elementos.includes(contacto.sucursal)
+    );
+  
+    setSucursal(organizacionEncontrada
+      ? { grupo: organizacionEncontrada, elemento: contacto.sucursal }
+      : null);
   };
 
-  const handleEdit = (id) => {
-    const contactoEdit = contactos.find((contacto) => contacto.id === id);
-    if (contactoEdit) {
-      setPrimerNombre(contactoEdit.primerNombre);
-      setSegundoNombre(contactoEdit.segundoNombre);
-      setPrimerApellido(contactoEdit.primerApellido);
-      setSegundoApellido(contactoEdit.segundoApellido);
-      setCorreo(contactoEdit.correo);
-      setTelefono(contactoEdit.telefono);
-      setEnabled(contactoEdit.enabled);
-      setSucursal({ elemento: contactoEdit.sucursal }); // Asigna el objeto completo
-      setEditandoId(id);
-    }
-  };
+//   const handleEdit = (id) => {
+//     const contactoEdit = contactos.find((contacto) => contacto.id === id);
+//     if (contactoEdit) {
+//       setPrimerNombre(contactoEdit.primerNombre);
+//       setSegundoNombre(contactoEdit.segundoNombre);
+//       setPrimerApellido(contactoEdit.primerApellido);
+//       setSegundoApellido(contactoEdit.segundoApellido);
+//       setCorreo(contactoEdit.correo);
+//       setTelefono(contactoEdit.telefono);
+//       setEnabled(contactoEdit.enabled);
+  
+//       // Encontrar la organización y sucursal correctas
+//       const organizacionEncontrada = organizaciones.find(organizacion =>
+//         organizacion.sucursales.includes(contactoEdit.sucursal)
+//       );
+  
+//       setSucursal(organizacionEncontrada
+//         ? { grupo: organizacionEncontrada, elemento: contactoEdit.sucursal }
+//         : null);
+//       setEditandoId(id);
+//     }
+//   };
+
+    const handleEdit = (id) => {
+        const contactoEdit = contactos.find((contacto) => contacto.id === id);
+        if (contactoEdit) {
+            setPrimerNombre(contactoEdit.primerNombre);
+            setSegundoNombre(contactoEdit.segundoNombre);
+            setPrimerApellido(contactoEdit.primerApellido);
+            setSegundoApellido(contactoEdit.segundoApellido);
+            setCorreo(contactoEdit.correo);
+            setTelefono(contactoEdit.telefono);
+            setEnabled(contactoEdit.enabled);
+
+            // Encontrar la organización y sucursal correctas
+            const organizacionEncontrada = organizaciones.find(organizacion =>
+            organizacion.elementos.includes(contactoEdit.sucursal)
+            );
+
+            setSucursal(organizacionEncontrada
+            ? { grupo: organizacionEncontrada, elemento: contactoEdit.sucursal }
+            : null);
+            setEditandoId(id);
+        }
+    };
 
   return (
     <Container style={{ marginTop: '1em', marginLeft: 0 }}>
@@ -285,7 +343,7 @@ const Contactos = () => {
                 <AutocompleteGrouped
                   grupos={organizaciones}
                   getGrupoLabel={(organizacion) => organizacion.nombre}
-                  getElementos={(organizacion) => organizacion.sucursales}
+                  getElementos={(organizacion) => organizacion.elementos}
                   getElementoLabel={(sucursal) => sucursal}
                   value={sucursal}
                   onChange={(event, newValue) => setSucursal(newValue)}
