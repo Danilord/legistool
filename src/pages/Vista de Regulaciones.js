@@ -140,26 +140,7 @@ const VistaRegulaciones = ({ isAdmin = false, userSucursal = 'Sucursal 2' }) => 
     document.body.removeChild(link);
   };
 
-    // const handleExportExcel = () => {
-    // const exportData = regulacionesFiltradas.map((reg) => ({
-    //     Permiso: reg.permiso,
-    //     'Tipo de Documento': reg.tipoDocumento,
-    //     'Fecha de Otorgamiento': reg.fechaOtorgamiento,
-    //     'Fecha de Expiración': reg.fechaExpiracion,
-    //     Descripción: reg.descripcion,
-    // }));
 
-    // // Convertir los datos a CSV
-    // const csv = Papa.unparse(exportData);
-
-    // const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    // const link = document.createElement('a');
-    // link.href = URL.createObjectURL(blob);
-    // link.download = `Regulaciones_${sucursal}.csv`;
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // };
     const handleExportExcel = () => {
         const exportData = regulacionesFiltradas.map((reg) => ({
           Permiso: reg.permiso,

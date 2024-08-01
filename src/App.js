@@ -21,8 +21,8 @@ import SubCategorias from './pages/SubCategorias';
 import Sucursales from './pages/Sucursales';
 import TipoDocumento from './pages/TipoDocumento';
 import VistaRegulaciones from './pages/Vista de Regulaciones';
+import VistaChecklist from './pages/Vista de Checklist';
 
-import { generateCsv } from 'export-to-csv';
 const AuthContext = createContext();
 
 const drawerWidth = 240; // Ancho del menú lateral
@@ -115,6 +115,9 @@ const App = () => {
                 <ListItem  component={Link} to="/vistaregulaciones">
                   <ListItemText primary="Vista de Regulaciones" />
                 </ListItem>
+                <ListItem  component={Link} to="/vistachecklist">
+                  <ListItemText primary="Vista de Checklist" />
+                </ListItem>
               </List>
             </div>
           </Drawer>
@@ -139,6 +142,7 @@ const App = () => {
               <Route path="/resultadodeauditoria" element={<AuditResult />} />
               <Route path="/requerimientos" element={<Requerimientos />} />
               <Route path="/vistaregulaciones" element={<VistaRegulaciones />} />
+              <Route path="/vistachecklist" element={<VistaChecklist />} />
             </Routes>
           </main>
         </div>
