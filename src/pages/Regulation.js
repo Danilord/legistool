@@ -9,20 +9,23 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Checkbox,
-  FormControlLabel,
   IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Switch
+  Switch,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  FormControlLabel,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DownloadIcon from '@mui/icons-material/Download';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Regulation = () => {
   const [nombreArchivo, setNombreArchivo] = useState('');
@@ -185,7 +188,14 @@ const Regulation = () => {
     { field: 'numeroRegulacion', headerName: 'Número de Regulación', flex: 1.5 },
     { field: 'fechaPublicacion', headerName: 'Fecha de Publicación', flex: 1 },
     { field: 'fechaEfectiva', headerName: 'Fecha Efectiva', flex: 1 },
-    { field: 'enabled', headerName: 'enabled', flex: 0.5 },
+    {
+      field: 'enabled',
+      headerName: 'Activo',
+      flex: 0.5,
+      renderCell: (params) => (
+        <Switch checked={params.value} disabled color="primary" />
+      ),
+    },
     { field: 'descripcion', headerName: 'Descripción', flex: 1.5 },
     { field: 'pais', headerName: 'País', flex: 1 },
     { field: 'tipoDocumento', headerName: 'Tipo de Documento', flex: 1.5 },
@@ -201,7 +211,10 @@ const Regulation = () => {
           <IconButton color="secondary" onClick={() => handleDelete(params.row.id)}>
             <DeleteIcon />
           </IconButton>
-          <IconButton color="primary" onClick={() => handleDownload(params.row.url, params.row.nombreArchivo)}>
+          <IconButton
+            color="primary"
+            onClick={() => handleDownload(params.row.url, params.row.nombreArchivo)}
+          >
             <DownloadIcon />
           </IconButton>
         </>
@@ -214,166 +227,178 @@ const Regulation = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Regulaciones
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h6">Formulario de Regulación</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
           <form onSubmit={handleSubmit}>
-            <FormControl fullWidth margin="normal">
-              <Button
-                variant="contained"
-                component="label"
-                startIcon={<CloudUploadIcon />}
-              >
-                Cargar Documento
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth margin="normal">
+                  <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    Cargar Documento
+                    <input type="file" hidden onChange={handleFileChange} />
+                  </Button>
+                </FormControl>
+
+                <TextField
+                  label="Nombre del Documento"
+                  variant="outlined"
+                  fullWidth
+                  value={nombreArchivo}
+                  onChange={handleNombreArchivoChange}
+                  margin="normal"
                 />
-              </Button>
-            </FormControl>
 
-            <TextField
-              label="Nombre del Documento"
-              variant="outlined"
-              fullWidth
-              value={nombreArchivo}
-              onChange={handleNombreArchivoChange}
-              margin="normal"
-            />
+                <TextField
+                  label="Número de Regulación"
+                  variant="outlined"
+                  fullWidth
+                  value={numeroRegulacion}
+                  onChange={(e) => handleInputChange(e, setNumeroRegulacion)}
+                  margin="normal"
+                />
 
-            <TextField
-              label="URL"
-              variant="outlined"
-              fullWidth
-              value={url}
-              margin="normal"
-              disabled
-            />
+                <TextField
+                  label="Fecha de Publicación"
+                  type="date"
+                  variant="outlined"
+                  fullWidth
+                  value={fechaPublicacion}
+                  onChange={(e) => handleInputChange(e, setFechaPublicacion)}
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
 
-            <TextField
-              label="Número de Regulación"
-              variant="outlined"
-              fullWidth
-              value={numeroRegulacion}
-              onChange={(e) => handleInputChange(e, setNumeroRegulacion)}
-              margin="normal"
-            />
+                <TextField
+                  label="Fecha de entrada en vigencia"
+                  type="date"
+                  variant="outlined"
+                  fullWidth
+                  value={fechaEfectiva}
+                  onChange={(e) => handleInputChange(e, setFechaEfectiva)}
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
 
-            <TextField
-              label="Fecha de Publicación"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              variant="outlined"
-              fullWidth
-              value={fechaPublicacion}
-              onChange={(e) => handleInputChange(e, setFechaPublicacion)}
-              margin="normal"
-            />
-
-            <TextField
-              label="Fecha Efectiva"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              variant="outlined"
-              fullWidth
-              value={fechaEfectiva}
-              onChange={(e) => handleInputChange(e, setFechaEfectiva)}
-              margin="normal"
-            />
-
-            <FormControlLabel
-                control={
+              <Grid item xs={12} md={6}>
+                <FormControlLabel
+                  control={
                     <Switch
-                        checked={enabled}
-                        onChange={(e) => setEnabled(e.target.checked)}
-                        color="primary"
+                      checked={enabled}
+                      onChange={(e) => setEnabled(e.target.checked)}
+                      color="primary"
                     />
-                }
-                label="Activo"
-                labelPlacement="start"
-                style={{ marginTop: '1em' }}
-            />
+                  }
+                  label="Activo"
+                  style={{ marginTop: '1em' }}
+                />
 
-            <TextField
-              label="Descripción"
-              variant="outlined"
-              fullWidth
-              value={descripcion}
-              onChange={(e) => handleInputChange(e, setDescripcion)}
-              margin="normal"
-              multiline
-              rows={4}
-            />
+                <TextField
+                  label="Descripción"
+                  variant="outlined"
+                  fullWidth
+                  value={descripcion}
+                  onChange={(e) => handleInputChange(e, setDescripcion)}
+                  margin="normal"
+                  multiline
+                  rows={5}
+                />
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="select-pais-label">País</InputLabel>
-              <Select
-                label="País"
-                labelId="select-pais-label"
-                id="select-pais"
-                value={paisSeleccionado}
-                onChange={(e) => handleInputChange(e, setPaisSeleccionado)}
-                variant="outlined"
-              >
-                {paises.map((pais) => (
-                  <MenuItem key={pais.id} value={pais.nombre}>
-                    {pais.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>País</InputLabel>
+                  <Select
+                    value={paisSeleccionado}
+                    onChange={(e) => handleInputChange(e, setPaisSeleccionado)}
+                    label="País"
+                  >
+                    {paises.map((pais) => (
+                      <MenuItem key={pais.id} value={pais.nombre}>
+                        {pais.nombre}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="select-tipo-doc-label">Tipo de Documento</InputLabel>
-              <Select
-                label="Tipo de Documento"
-                labelId="select-tipo-doc-label"
-                id="select-tipo-doc"
-                value={tipoDocumentoSeleccionado}
-                onChange={(e) => handleInputChange(e, setTipoDocumentoSeleccionado)}
-                variant="outlined"
-              >
-                {tiposDocumentos.map((tipo) => (
-                  <MenuItem key={tipo.id} value={tipo.nombre}>
-                    {tipo.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Tipo de Documento</InputLabel>
+                  <Select
+                    value={tipoDocumentoSeleccionado}
+                    onChange={(e) =>
+                      handleInputChange(e, setTipoDocumentoSeleccionado)
+                    }
+                    label="Tipo de Documento"
+                  >
+                    {tiposDocumentos.map((tipo) => (
+                      <MenuItem key={tipo.id} value={tipo.nombre}>
+                        {tipo.nombre}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
 
             {error && (
-              <Typography variant="caption" color="error">
+              <Typography color="error" variant="body1" gutterBottom>
                 {error}
               </Typography>
             )}
 
-            <Button type="submit" variant="contained" color="primary" style={{ marginTop: '1em' }}>
-              {editandoRegulacionId ? 'Actualizar' : 'Guardar'}
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: '1em' }}
+            >
+              {editandoRegulacionId ? 'Actualizar Regulación' : 'Agregar Regulación'}
             </Button>
           </form>
-        </Grid>
-        <Grid item xs={12}>
-          <div style={{ height: 600, width: '100%', marginTop: '2em' }}> {/* Ajusta el alto aquí */}
-            <DataGrid
-              rows={regulaciones}
-              columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-            />
-          </div>
-        </Grid>
-      </Grid>
+        </AccordionDetails>
+      </Accordion>
 
-      <Dialog open={openConfirmDelete} onClose={cancelDelete}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
+      <div style={{ height: 400, width: '100%', marginTop: '1em' }}>
+        <DataGrid
+          rows={regulaciones}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          disableSelectionOnClick
+        />
+      </div>
+
+      <Dialog
+        open={openConfirmDelete}
+        onClose={cancelDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{'Confirmar Eliminación'}</DialogTitle>
         <DialogContent>
-          <Typography>¿Estás seguro de que deseas eliminar esta regulación?</Typography>
+          <Typography>
+            ¿Estás seguro de que deseas eliminar esta regulación?
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={cancelDelete} color="primary">
             Cancelar
           </Button>
-          <Button onClick={confirmDelete} color="secondary">
+          <Button onClick={confirmDelete} color="secondary" autoFocus>
             Eliminar
           </Button>
         </DialogActions>

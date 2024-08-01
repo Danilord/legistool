@@ -5,10 +5,6 @@ import {
   Button,
   Typography,
   Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Table,
   TableBody,
   TableCell,
@@ -17,22 +13,26 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Tooltip
+  Tooltip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Autocomplete
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const RegulacionesSucursal = () => {
-  const [sucursalSeleccionada, setSucursalSeleccionada] = useState('');
-  const [regulacionSeleccionada, setRegulacionSeleccionada] = useState('');
-  const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState('');
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
+  const [regulacionSeleccionada, setRegulacionSeleccionada] = useState(null);
+  const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState(null);
   const [articulos, setArticulos] = useState('');
   const [responsable, setResponsable] = useState('');
   const [requerimientos, setRequerimientos] = useState('');
   const [referencia, setReferencia] = useState('');
   const [creadoEn, setCreadoEn] = useState('');
-  const [creadoPor, setCreadoPor] = useState('');
   const [error, setError] = useState('');
   const [regulacionesList, setRegulacionesList] = useState([]);
   const [editIndex, setEditIndex] = useState(-1); // Índice del elemento que se está editando
@@ -68,8 +68,7 @@ const RegulacionesSucursal = () => {
       !responsable ||
       !requerimientos ||
       !referencia ||
-      !creadoEn ||
-      !creadoPor
+      !creadoEn
     ) {
       setError('Todos los campos son requeridos');
       return;
@@ -86,7 +85,6 @@ const RegulacionesSucursal = () => {
       requerimientos: requerimientos,
       referencia: referencia,
       creadoEn: creadoEn,
-      creadoPor: creadoPor,
     };
 
     if (editIndex !== -1) {
@@ -106,15 +104,14 @@ const RegulacionesSucursal = () => {
     }
 
     // Limpiar los campos del formulario
-    setSucursalSeleccionada('');
-    setRegulacionSeleccionada('');
-    setSubcategoriaSeleccionada('');
+    setSucursalSeleccionada(null);
+    setRegulacionSeleccionada(null);
+    setSubcategoriaSeleccionada(null);
     setArticulos('');
     setResponsable('');
     setRequerimientos('');
     setReferencia('');
     setCreadoEn('');
-    setCreadoPor('');
   };
 
   const handleEdit = (index) => {
@@ -127,7 +124,6 @@ const RegulacionesSucursal = () => {
     setRequerimientos(regulacion.requerimientos);
     setReferencia(regulacion.referencia);
     setCreadoEn(regulacion.creadoEn);
-    setCreadoPor(regulacion.creadoPor);
     setEditIndex(index); // Establecer el índice de edición
   };
 
@@ -148,195 +144,203 @@ const RegulacionesSucursal = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Regulaciones Sucursal
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <form onSubmit={handleSubmit}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="select-sucursal-label">Sucursal</InputLabel>
-              <Select
-                label="Sucursal"
-                labelId="select-sucursal-label"
-                id="select-sucursal"
-                value={sucursalSeleccionada}
-                onChange={(e) => handleInputChange(e, setSucursalSeleccionada)}
-                variant="outlined"
-              >
-                {sucursales.map((suc) => (
-                  <MenuItem key={suc.id} value={suc.nombre}>
-                    {suc.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="select-regulacion-label">Regulación</InputLabel>
-              <Select
-                label="Regulación"
-                labelId="select-regulacion-label"
-                id="select-regulacion"
-                value={regulacionSeleccionada}
-                onChange={(e) => handleInputChange(e, setRegulacionSeleccionada)}
-                variant="outlined"
-              >
-                {regulaciones.map((reg) => (
-                  <MenuItem key={reg.id} value={reg.nombre}>
-                    {reg.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h6">Formulario de Regulaciones</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="select-subcategoria-label">Subcategoría</InputLabel>
-              <Select
-                label="Subcategoría"
-                labelId="select-subcategoria-label"
-                id="select-subcategoria"
-                value={subcategoriaSeleccionada}
-                onChange={(e) => handleInputChange(e, setSubcategoriaSeleccionada)}
-                variant="outlined"
-              >
-                {subcategorias.map((sub) => (
-                  <MenuItem key={sub.id} value={sub.nombre}>
-                    {sub.nombre}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Autocomplete
+                      options={sucursales}
+                      getOptionLabel={(option) => option.nombre}
+                      value={sucursalSeleccionada}
+                      onChange={(event, newValue) => {
+                        setSucursalSeleccionada(newValue);
+                        setError('');
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Sucursal"
+                          variant="outlined"
+                          fullWidth
+                          margin="normal"
+                        />
+                      )}
+                    />
 
-            <TextField
-              label="Artículos"
-              variant="outlined"
-              fullWidth
-              value={articulos}
-              onChange={(e) => handleInputChange(e, setArticulos)}
-              margin="normal"
-            />
+                    <Autocomplete
+                      options={regulaciones}
+                      getOptionLabel={(option) => option.nombre}
+                      value={regulacionSeleccionada}
+                      onChange={(event, newValue) => {
+                        setRegulacionSeleccionada(newValue);
+                        setError('');
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Regulación"
+                          variant="outlined"
+                          fullWidth
+                          margin="normal"
+                        />
+                      )}
+                    />
 
-            <TextField
-              label="Responsable"
-              variant="outlined"
-              fullWidth
-              value={responsable}
-              onChange={(e) => handleInputChange(e, setResponsable)}
-              margin="normal"
-            />
+                    <Autocomplete
+                      options={subcategorias}
+                      getOptionLabel={(option) => option.nombre}
+                      value={subcategoriaSeleccionada}
+                      onChange={(event, newValue) => {
+                        setSubcategoriaSeleccionada(newValue);
+                        setError('');
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Subcategoría"
+                          variant="outlined"
+                          fullWidth
+                          margin="normal"
+                        />
+                      )}
+                    />
 
-            <TextField
-              label="Requerimientos"
-              variant="outlined"
-              fullWidth
-              value={requerimientos}
-              onChange={(e) => handleInputChange(e, setRequerimientos)}
-              margin="normal"
-            />
+                    <TextField
+                      label="Artículos"
+                      variant="outlined"
+                      fullWidth
+                      value={articulos}
+                      onChange={(e) => handleInputChange(e, setArticulos)}
+                      margin="normal"
+                    />
 
-            <TextField
-              label="Referencia"
-              variant="outlined"
-              fullWidth
-              value={referencia}
-              onChange={(e) => handleInputChange(e, setReferencia)}
-              margin="normal"
-            />
+                    
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Requerimientos"
+                      variant="outlined"
+                      fullWidth
+                      value={requerimientos}
+                      onChange={(e) => handleInputChange(e, setRequerimientos)}
+                      margin="normal"
+                    />
 
-            <TextField
-              label="Creado en"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              variant="outlined"
-              fullWidth
-              value={creadoEn}
-              onChange={(e) => handleInputChange(e, setCreadoEn)}
-              margin="normal"
-            />
+                    <TextField
+                      label="Referencia"
+                      variant="outlined"
+                      fullWidth
+                      value={referencia}
+                      onChange={(e) => handleInputChange(e, setReferencia)}
+                      margin="normal"
+                    />
 
-            <TextField
-              label="Creado por"
-              variant="outlined"
-              fullWidth
-              value={creadoPor}
-              onChange={(e) => handleInputChange(e, setCreadoPor)}
-              margin="normal"
-            />
+                    <TextField
+                      label="Creado en"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      variant="outlined"
+                      fullWidth
+                      value={creadoEn}
+                      onChange={(e) => handleInputChange(e, setCreadoEn)}
+                      margin="normal"
+                    />
 
-            {error && (
-              <Typography variant="caption" color="error">
-                {error}
-              </Typography>
-            )}
+                    <TextField
+                      label="Responsable"
+                      variant="outlined"
+                      fullWidth
+                      value={responsable}
+                      onChange={(e) => handleInputChange(e, setResponsable)}
+                      margin="normal"
+                    />
 
-            <Button type="submit" variant="contained" color="primary">
-              {editIndex !== -1 ? 'Actualizar' : 'Guardar'}
-            </Button>
-          </form>
-        </Grid>
+                    {error && (
+                      <Typography variant="caption" color="error">
+                        {error}
+                      </Typography>
+                    )}
 
-        <Grid item xs={12}>
-          <TableContainer component={Paper} style={{ marginTop: '2em' }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Sucursal</TableCell>
-                  <TableCell>Regulación</TableCell>
-                  <TableCell>Subcategoría</TableCell>
-                  <TableCell>Artículos</TableCell>
-                  <TableCell>Responsable</TableCell>
-                  <TableCell>Requerimientos</TableCell>
-                  <TableCell>Referencia</TableCell>
-                  <TableCell>Creado en</TableCell>
-                  <TableCell>Creado por</TableCell>
-                  <TableCell align="right">Acciones</TableCell>
+                    <Button type="submit" variant="contained" color="primary" style={{ marginTop: '16px' }}>
+                      {editIndex !== -1 ? 'Actualizar' : 'Guardar'}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </form>
+        </AccordionDetails>
+      </Accordion>
+
+      <Grid item xs={12}>
+        <TableContainer component={Paper} style={{ marginTop: '2em' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Sucursal</TableCell>
+                <TableCell>Regulación</TableCell>
+                <TableCell>Subcategoría</TableCell>
+                <TableCell>Artículos</TableCell>
+                <TableCell>Responsable</TableCell>
+                <TableCell>Requerimientos</TableCell>
+                <TableCell>Referencia</TableCell>
+                <TableCell>Creado en</TableCell>
+                <TableCell align="right">Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {regulacionesList.map((regulacion, index) => (
+                <TableRow key={index}>
+                  <TableCell>{regulacion.sucursal?.nombre}</TableCell>
+                  <TableCell>{regulacion.regulacion?.nombre}</TableCell>
+                  <TableCell>{regulacion.subcategoria?.nombre}</TableCell>
+                  <TableCell>{regulacion.articulos}</TableCell>
+                  <TableCell>{regulacion.responsable}</TableCell>
+                  <TableCell>{regulacion.requerimientos}</TableCell>
+                  <TableCell>{regulacion.referencia}</TableCell>
+                  <TableCell>{regulacion.creadoEn}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Editar">
+                      <IconButton
+                        aria-label="editar"
+                        color="primary"
+                        onClick={() => handleEdit(index)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Copiar">
+                      <IconButton
+                        aria-label="copiar"
+                        color="secondary"
+                        onClick={() => handleCopy(index)}
+                      >
+                        <FileCopyIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Eliminar">
+                      <IconButton
+                        aria-label="eliminar"
+                        color="error"
+                        onClick={() => handleDelete(index)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {regulacionesList.map((regulacion, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{regulacion.sucursal}</TableCell>
-                    <TableCell>{regulacion.regulacion}</TableCell>
-                    <TableCell>{regulacion.subcategoria}</TableCell>
-                    <TableCell>{regulacion.articulos}</TableCell>
-                    <TableCell>{regulacion.responsable}</TableCell>
-                    <TableCell>{regulacion.requerimientos}</TableCell>
-                    <TableCell>{regulacion.referencia}</TableCell>
-                    <TableCell>{regulacion.creadoEn}</TableCell>
-                    <TableCell>{regulacion.creadoPor}</TableCell>
-                    <TableCell>
-                      <Tooltip title="Editar">
-                        <IconButton
-                          aria-label="editar"
-                          color="primary"
-                          onClick={() => handleEdit(index)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Copiar">
-                        <IconButton
-                          aria-label="copiar"
-                          color="secondary"
-                          onClick={() => handleCopy(index)}
-                        >
-                          <FileCopyIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Eliminar">
-                        <IconButton
-                          aria-label="eliminar"
-                          color="error"
-                          onClick={() => handleDelete(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Grid>
     </Container>
   );
