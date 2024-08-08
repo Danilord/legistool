@@ -26,7 +26,21 @@ const DistribucionCorreo = () => {
   const [errorEmail, setErrorEmail] = useState('');
 
   // Objeto para almacenar las listas de correos por cada sucursal
-  const [listasCorreos, setListasCorreos] = useState({});
+  const [listasCorreos, setListasCorreos] = useState({
+    'Sucursal 1-1': [
+      { id: 1, email: 'correo1@sucursal1-1.com', enabled: true },
+      { id: 2, email: 'correo2@sucursal1-1.com', enabled: true },
+    ],
+    'Sucursal 1-2': [
+      { id: 1, email: 'correo1@sucursal1-2.com', enabled: false },
+    ],
+    'Sucursal 2-1': [
+      { id: 1, email: 'correo1@sucursal2-1.com', enabled: true },
+      { id: 2, email: 'correo2@sucursal2-1.com', enabled: true },
+      { id: 3, email: 'correo3@sucursal2-1.com', enabled: false },
+    ],
+    'Sucursal 2-2': [],
+  });
 
   const organizaciones = [
     {
@@ -34,17 +48,17 @@ const DistribucionCorreo = () => {
       nombre: 'Organización 1',
       sucursales: [
         { id: 1, nombre: 'Sucursal 1-1' },
-        { id: 2, nombre: 'Sucursal 1-2' }
-      ]
+        { id: 2, nombre: 'Sucursal 1-2' },
+      ],
     },
     {
       id: 2,
       nombre: 'Organización 2',
       sucursales: [
         { id: 3, nombre: 'Sucursal 2-1' },
-        { id: 4, nombre: 'Sucursal 2-2' }
-      ]
-    }
+        { id: 4, nombre: 'Sucursal 2-2' },
+      ],
+    },
   ];
 
   const handleInputChange = (event, setter) => {
