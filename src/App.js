@@ -22,6 +22,7 @@ import Sucursales from './pages/Sucursales';
 import TipoDocumento from './pages/TipoDocumento';
 import VistaRegulaciones from './pages/Vista de Regulaciones';
 import VistaChecklist from './pages/Vista de Checklist';
+import Login from './pages/Login';
 
 const AuthContext = createContext();
 
@@ -125,6 +126,7 @@ const App = () => {
             <Toolbar />
             <Routes>
               <Route path="/" element={<Inicio />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/organizacion" element={<Organizacion />} />
               <Route path="/paises" element={<Country />} />
               <Route path="/sucursales" element={<Sucursales />} />
