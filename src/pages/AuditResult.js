@@ -9,7 +9,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  TextareaAutosize,
   IconButton,
   Dialog,
   DialogActions,
@@ -167,7 +166,6 @@ const AuditResult = () => {
 
   const columns = [
     { field: 'nombre', headerName: 'Nombre', flex: 1 },
-    // { field: 'url', headerName: 'URL', flex: 1 },
     { field: 'descripcion', headerName: 'Descripción', flex: 1 },
     { field: 'sucursal', headerName: 'Sucursal', flex: 1 },
     { field: 'tipoDocumento', headerName: 'Tipo de Documento', flex: 1.5 },
