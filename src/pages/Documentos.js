@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   TextField,
   Button,
   Typography,
   Grid,
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
   IconButton,
   Dialog,
   DialogActions,
@@ -17,6 +14,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Autocomplete
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -46,6 +44,7 @@ const Documentos = () => {
   const [filtroNombre, setFiltroNombre] = useState('');
   const [documentosFiltrados, setDocumentosFiltrados] = useState([]);
 
+  // Datos de ejemplo para las opciones de selección
   const organizaciones = [
     { id: 1, nombre: 'Organización 1' },
     { id: 2, nombre: 'Organización 2' },
@@ -61,6 +60,36 @@ const Documentos = () => {
     { id: 2, nombre: 'Tipo Documento 2' },
   ];
 
+  // Función para aplicar los filtros
+  const aplicarFiltros = () => {
+    const filtered = documentos.filter((doc) => {
+      return (
+        (filtroOrganizacion === '' ||
+          doc.organizacion.toLowerCase().includes(filtroOrganizacion.toLowerCase())) &&
+        (filtroSucursal === '' ||
+          doc.sucursal.toLowerCase().includes(filtroSucursal.toLowerCase())) &&
+        (filtroNombre === '' ||
+          doc.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
+      );
+    });
+
+    setDocumentosFiltrados(filtered);
+  };
+
+  // Aplicar los filtros al cambiar cualquiera de ellos
+  useEffect(() => {
+    aplicarFiltros();
+  }, [filtroOrganizacion, filtroSucursal, filtroNombre, documentos]);
+
+  // Simular carga inicial de documentos
+  useEffect(() => {
+    const documentosIniciales = [
+      { id: 1, nombre: 'Documento 1', url: 'https://dominio.com/documentos/Organización 1/Sucursal 1/Documento 1.pdf', descripcion: 'Descripción del Documento 1', organizacion: 'Organización 1', sucursal: 'Sucursal 1', tipoDocumento: 'Tipo Documento 1' },
+      { id: 2, nombre: 'Documento 2', url: 'https://dominio.com/documentos/Organización 2/Sucursal 2/Documento 2.pdf', descripcion: 'Descripción del Documento 2', organizacion: 'Organización 2', sucursal: 'Sucursal 2', tipoDocumento: 'Tipo Documento 2' }
+    ];
+    setDocumentos(documentosIniciales);
+  }, []);
+
   const handleInputChange = (event, setter) => {
     setter(event.target.value);
     setError('');
@@ -71,14 +100,27 @@ const Documentos = () => {
     if (file) {
       setArchivo(file);
       setNombreArchivo(file.name);
+      setNuevoNombreArchivo(file.name);
+
       // Actualiza la URL cada vez que se carga un archivo
-      const url = generarUrlGuardado(nuevoNombreArchivo, organizacionSeleccionada, sucursalSeleccionada);
+      const url = generarUrlGuardado(
+        file.name,
+        organizacionSeleccionada,
+        sucursalSeleccionada
+      );
       setUrlGuardado(url);
     }
   };
 
   const handleNuevoNombreArchivoChange = (event) => {
-    setNuevoNombreArchivo(event.target.value);
+    const nuevoNombre = event.target.value;
+    setNuevoNombreArchivo(nuevoNombre);
+    const url = generarUrlGuardado(
+      nuevoNombre,
+      organizacionSeleccionada,
+      sucursalSeleccionada
+    );
+    setUrlGuardado(url);
   };
 
   const generarUrlGuardado = (nombre, organizacion, sucursal) => {
@@ -94,18 +136,13 @@ const Documentos = () => {
 
     if (
       !nombreArchivo ||
-      !descripcion ||
       !sucursalSeleccionada ||
       !organizacionSeleccionada ||
       !tipoDocumentoSeleccionado ||
-      !nuevoNombreArchivo
+      !nuevoNombreArchivo ||
+      !archivo
     ) {
-      setError('Todos los campos son requeridos');
-      return;
-    }
-
-    if (!urlGuardado) {
-      setError('Faltan campos para generar la URL del guardado');
+      setError('Por favor, complete todos los campos.');
       return;
     }
 
@@ -186,31 +223,11 @@ const Documentos = () => {
     document.body.removeChild(link);
   };
 
-  // Función para aplicar los filtros
-  const aplicarFiltros = () => {
-    const filtered = documentos.filter((doc) => {
-      return (
-        (filtroOrganizacion === '' || doc.organizacion.toLowerCase().includes(filtroOrganizacion.toLowerCase())) &&
-        (filtroSucursal === '' || doc.sucursal.toLowerCase().includes(filtroSucursal.toLowerCase())) &&
-        (filtroNombre === '' || doc.nombre.toLowerCase().includes(filtroNombre.toLowerCase()))
-      );
-    });
-  
-    setDocumentosFiltrados(filtered);
-  };
-  
-
-  // Aplicar los filtros al cambiar cualquiera de ellos
-  React.useEffect(() => {
-    aplicarFiltros();
-  }, [filtroOrganizacion, filtroSucursal, filtroNombre, documentos]);
-  
-
   const columns = [
-    { field: 'nombre', headerName: 'Nombre', flex: 1 },
-    { field: 'descripcion', headerName: 'Descripción', flex: 1 },
-    { field: 'organizacion', headerName: 'Organización', flex: 1 },
-    { field: 'sucursal', headerName: 'Sucursal', flex: 1 },
+    { field: 'nombre', headerName: 'Nombre', flex: 2 },
+    { field: 'descripcion', headerName: 'Descripción', flex: 2 },
+    { field: 'organizacion', headerName: 'Organización', flex: 1.5 },
+    { field: 'sucursal', headerName: 'Sucursal', flex: 1.5 },
     { field: 'tipoDocumento', headerName: 'Tipo de Documento', flex: 1.5 },
     {
       field: 'acciones',
@@ -221,10 +238,16 @@ const Documentos = () => {
           <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
             <EditIcon />
           </IconButton>
-          <IconButton color="secondary" onClick={() => handleDelete(params.row.id)}>
+          <IconButton
+            color="secondary"
+            onClick={() => handleDelete(params.row.id)}
+          >
             <DeleteIcon />
           </IconButton>
-          <IconButton color="primary" onClick={() => handleDownload(params.row.url, params.row.nombre)}>
+          <IconButton
+            color="default"
+            onClick={() => handleDownload(params.row.url, params.row.nombre)}
+          >
             <DownloadIcon />
           </IconButton>
         </>
@@ -233,183 +256,161 @@ const Documentos = () => {
   ];
 
   return (
-    <Container style={{ marginTop: '1em', marginLeft: 0 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Documentos
+    <Container>
+      <Typography variant="h4" gutterBottom>
+        Gestión de Documentos
       </Typography>
       <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography>Agregar/Editar Documento</Typography>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Formulario</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Seleccionar Archivo
-                  <input
-                    type="file"
-                    hidden
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                  />
-                </Button>
-                <TextField
-                  fullWidth
-                  label="Nombre del Archivo"
-                  value={nombreArchivo}
-                  onChange={(e) => handleInputChange(e, setNombreArchivo)}
-                  variant="outlined"
-                  margin="normal"
-                  disabled
-                />
-                <TextField
-                  fullWidth
-                  label="Nuevo Nombre del Archivo"
-                  value={nuevoNombreArchivo}
-                  onChange={handleNuevoNombreArchivoChange}
-                  variant="outlined"
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  label="Descripción"
-                  value={descripcion}
-                  onChange={(e) => handleInputChange(e, setDescripcion)}
-                  variant="outlined"
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                
-                <FormControl fullWidth margin="normal" sx={{ marginTop:"53px"}}>
-                  <InputLabel>Organización</InputLabel>
-                  <Select
-                    value={organizacionSeleccionada}
-                    onChange={(e) => handleInputChange(e, setOrganizacionSeleccionada)}
-                    label="Organización"
-                  >
-                    {organizaciones.map((org) => (
-                      <MenuItem key={org.id} value={org.nombre}>
-                        {org.nombre}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Sucursal</InputLabel>
-                  <Select
-                    value={sucursalSeleccionada}
-                    onChange={(e) => handleInputChange(e, setSucursalSeleccionada)}
-                    label="Sucursal"
-                  >
-                    {sucursales.map((suc) => (
-                      <MenuItem key={suc.id} value={suc.nombre}>
-                        {suc.nombre}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Tipo de Documento</InputLabel>
-                  <Select
-                    value={tipoDocumentoSeleccionado}
-                    onChange={(e) => handleInputChange(e, setTipoDocumentoSeleccionado)}
-                    label="Tipo de Documento"
-                  >
-                    {tiposDocumentos.map((tipo) => (
-                      <MenuItem key={tipo.id} value={tipo.nombre}>
-                        {tipo.nombre}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                {error && (
-                  <Typography color="error">
-                    {error}
-                  </Typography>
-                )}
-                <Button variant="contained" type="submit">
-                  {editandoDocumentoId ? 'Actualizar Documento' : 'Guardar Documento'}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </AccordionDetails>
-      </Accordion>
-      <Grid container spacing={2} marginTop={2}>
-        <Grid item xs={12}>
-          <Typography variant="h6" component="h2">
-            Filtrar Documentos
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
+        <form onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
               <TextField
-                fullWidth
-                label="Organización"
-                value={filtroOrganizacion}
-                onChange={(e) => setFiltroOrganizacion(e.target.value)}
-                variant="outlined"
-                margin="normal"
+                label="Nombre del Archivo"
+                value={nombreArchivo}
+                onChange={(e) => handleInputChange(e, setNombreArchivo)}
+                disabled
               />
-            </Grid>
-            <Grid item xs={12} md={4}>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
               <TextField
-                fullWidth
-                label="Sucursal"
-                value={filtroSucursal}
-                onChange={(e) => setFiltroSucursal(e.target.value)}
-                variant="outlined"
-                margin="normal"
+                label="Nuevo Nombre del Archivo"
+                value={nuevoNombreArchivo}
+                onChange={handleNuevoNombreArchivoChange}
               />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                fullWidth
-                label="Nombre"
-                value={filtroNombre}
-                onChange={(e) => setFiltroNombre(e.target.value)}
-                variant="outlined"
-                margin="normal"
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={organizaciones}
+                getOptionLabel={(option) => option.nombre}
+                value={organizaciones.find((org) => org.nombre === organizacionSeleccionada) || null}
+                onChange={(e, newValue) => setOrganizacionSeleccionada(newValue ? newValue.nombre : '')}
+                renderInput={(params) => <TextField {...params} label="Organización" />}
               />
-            </Grid>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={sucursales}
+                getOptionLabel={(option) => option.nombre}
+                value={sucursales.find((suc) => suc.nombre === sucursalSeleccionada) || null}
+                onChange={(e, newValue) => setSucursalSeleccionada(newValue ? newValue.nombre : '')}
+                renderInput={(params) => <TextField {...params} label="Sucursal" />}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={tiposDocumentos}
+                getOptionLabel={(option) => option.nombre}
+                value={tiposDocumentos.find((tipo) => tipo.nombre === tipoDocumentoSeleccionado) || null}
+                onChange={(e, newValue) => setTipoDocumentoSeleccionado(newValue ? newValue.nombre : '')}
+                renderInput={(params) => <TextField {...params} label="Tipo de Documento" />}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Descripción"
+              multiline
+              rows={4}
+              value={descripcion}
+              onChange={(e) => handleInputChange(e, setDescripcion)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              component="label"
+              startIcon={<CloudUploadIcon />}
+            >
+              Seleccionar Archivo
+              <input
+                type="file"
+                hidden
+                onChange={handleFileChange}
+                accept='.pdf'
+              />
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button variant="contained" color="primary" type="submit">
+              Guardar
+            </Button>
+            {error && <Typography color="error">{error}</Typography>}
           </Grid>
         </Grid>
-        <Grid item xs={12} marginTop={2}>
-          <div style={{ height: 600, width: '100%' }}>
-            <DataGrid
-              rows={documentosFiltrados}
-              columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-              disableSelectionOnClick
+      </form>
+        </AccordionDetails>
+      </Accordion>
+      
+      <Grid container spacing={3} marginTop={3} alignContent={"center"}>
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <TextField
+              label="Filtrar por Organización"
+              value={filtroOrganizacion}
+              onChange={(e) => setFiltroOrganizacion(e.target.value)}
             />
-          </div>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <TextField
+              label="Filtrar por Sucursal"
+              value={filtroSucursal}
+              onChange={(e) => setFiltroSucursal(e.target.value)}
+            />
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <TextField
+              label="Filtrar por Nombre"
+              value={filtroNombre}
+              onChange={(e) => setFiltroNombre(e.target.value)}
+            />
+          </FormControl>
         </Grid>
       </Grid>
+      <div style={{ height: 400, width: '100%', marginTop: 20 }}>
+        <DataGrid
+          rows={documentosFiltrados}
+          columns={columns}
+          pageSize={5}
+        />
+      </div>
       <Dialog
         open={openConfirmDelete}
-        onClose={() => setOpenConfirmDelete(false)}
+        onClose={cancelDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {'Confirmar Eliminación'}
+        </DialogTitle>
         <DialogContent>
           <Typography>
-            ¿Estás seguro de que deseas eliminar este documento?
+            ¿Está seguro de que desea eliminar este documento?
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={cancelDelete}>Cancelar</Button>
-          <Button onClick={confirmDelete} color="secondary">
+          <Button onClick={cancelDelete} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmDelete} color="secondary" autoFocus>
             Eliminar
           </Button>
         </DialogActions>
